@@ -5,32 +5,27 @@ import data from './data';
 import uniqueVal from './uniqeData';
 import { TextField, FormControlLabel, Switch } from '@material-ui/core';
 const checkedArr = [];
+const fType = [];
 function App() {
 
   const [arrDt, setArrDt] = useState([]);
   const [arrDts, setArrDts] = useState([]);
-  const [datass, setDatass] = useState([])
+  const [datass, setDatass] = useState([]);
 
+  const [searchName, setSearchName] = useState("");
 
-  const cityYY = data.map((v, i) => {
+  const allCity = uniqueVal(data.map((v, i) => {
     return v.city
-  });
-  const allCity = uniqueVal(cityYY)
-
-  const categoryYY = data.map((v, i) => {
+  }));
+  const allCategory = uniqueVal(data.map((v, i) => {
     return v.category
-  });
-  const allCategory = uniqueVal(categoryYY)
-
-  const typeYY = data.map((v, i) => {
+  }));
+  const allType = uniqueVal(data.map((v, i) => {
     return v.type
-  });
-  const allType = uniqueVal(typeYY)
-
-  const activeYY = data.map((v, i) => {
+  }));
+  const allActive = uniqueVal(data.map((v, i) => {
     return v.active
-  });
-  const allActive = uniqueVal(activeYY)
+  }));
 
 
   useEffect(() => {
@@ -38,40 +33,101 @@ function App() {
     setArrDts(data)
   }, [])
 
-  const getData = (e) => {
+  const getData = (e, filterType) => {
     if (e.target.checked) {
-
       let ch = e.target.value;
-      //console.log(ch);
-      /* setDatass([...datass, ch]) */
-
       checkedArr.push(ch)
-      console.log("checked : ", checkedArr);
-
-      //console.log(checkedArr.length);
-      //console.log("Yes : ", ch);
-      const ab = arrDt.filter((v) => {
-        return v.city === checkedArr[checkedArr.length - 1];
+      console.log("push : ", checkedArr);
+      if (fType.length === 0) {
+        fType.push(filterType);
+        console.log("zero");
+        //checkedArr.push(ch)
+        let ab = arrDts.filter((v) => {
+          if (checkedArr.indexOf(v[filterType]) >= 0) {
+            return true
+          }
+        })
+        setArrDt(ab);
+      } else {
+        if (fType.includes(filterType)) {
+          console.log("yes");
+          //checkedArr.push(ch)
+          let ab = arrDts.filter((v) => {
+            if (checkedArr.indexOf(v[filterType]) >= 0) {
+              return true
+            }
+          })
+          setArrDt(ab);
+        }
+        else {
+          console.log("No");
+          console.log(arrDt);
+          console.log("checkedArr : ", checkedArr);
+          let ab = arrDt.filter((v) => {
+            if (checkedArr.indexOf(v[filterType]) >= 0) {
+              return true
+            }
+          })
+          setArrDt(ab);
+        }
+        fType.push(filterType);
+      }
+      // checkedArr.push(ch)
+      //fType.push(filterType);
+      //console.log("checked : ", checkedArr);
+      //console.log("filter type : ", fType);
+      /* const ab = arrDts.filter((v) => {
+        if (checkedArr.indexOf(v[filterType]) >= 0) {
+          return true
+        }
       })
-      setArrDt(ab);
+      setArrDt(ab); */
     }
     else {
+
       let ch = e.target.value;
       var index = checkedArr.indexOf(ch);
+      //console.log("index : ", index);
       if (index !== -1) {
         checkedArr.splice(index, 1);
       }
-      console.log("remove : ", checkedArr);
-      /* let ch = e.target.value
-      let index = datass.indexOf(ch);
       if (index !== -1) {
-        datass.splice(index, 1);
-      } */
-      /* console.log("remove : ", datass); */
-      //setArrDt(arrDts)
+        fType.splice(index, 1);
+      }
+      console.log("remove : ", checkedArr);
+      console.log("remove fType : ", fType);
+      if (checkedArr.length <= 0) {
+        setArrDt(arrDts)
+      }
+      else {
+
+        const unq = uniqueVal(fType.map((v, i) => {
+          return v
+        }));
+
+        console.log("unq : ", unq);
+
+        if (unq.length > 1) {
+          console.log("more");
+          const ab = arrDt.filter((v) => {
+            if (checkedArr.indexOf(v[filterType]) >= 0) {
+              return true
+            }
+          })
+          setArrDt(ab);
+        }
+        else {
+          const ab = arrDts.filter((v) => {
+            if (checkedArr.indexOf(v[filterType]) >= 0) {
+              return true
+            }
+          })
+          setArrDt(ab);
+        }
+      }
+
     }
   }
-  //console.log(datass);
   return (
     <>
       <div className="container">
@@ -82,10 +138,9 @@ function App() {
               {
                 allCity.map((v, i) => {
                   return (
-                    //<ReusableSwitch name={v} />
                     <FormControlLabel
                       value="end"
-                      control={<Switch color="primary" value={v} onChange={getData} />}
+                      control={<Switch color="primary" value={v} onChange={(e) => getData(e, 'city')} />}
                       label={v}
                       labelPlacement="end"
                     />
@@ -100,7 +155,13 @@ function App() {
               {
                 allCategory.map((v, i) => {
                   return (
-                    <ReusableSwitch name={v} />
+                    <FormControlLabel
+                      value="end"
+                      control={<Switch color="primary" value={v} onChange={(e) => getData(e, 'category')} />}
+                      label={v}
+                      labelPlacement="end"
+                    />
+                    //<ReusableSwitch name={v} />
                   )
                 })
               }
@@ -112,7 +173,13 @@ function App() {
               {
                 allType.map((v, i) => {
                   return (
-                    <ReusableSwitch name={v} />
+                    <FormControlLabel
+                      value="end"
+                      control={<Switch color="primary" value={v} onChange={(e) => getData(e, 'type')} />}
+                      label={v}
+                      labelPlacement="end"
+                    />
+                    //<ReusableSwitch name={v} />
                   )
                 })
               }
@@ -124,7 +191,13 @@ function App() {
               {
                 allActive.map((v, i) => {
                   return (
-                    <ReusableSwitch name={v} />
+                    <FormControlLabel
+                      value="end"
+                      control={<Switch color="primary" value={v} onChange={(e) => getData(e, 'active')} />}
+                      label={v}
+                      labelPlacement="end"
+                    />
+                    //<ReusableSwitch name={v} />
                   )
                 })
               }
@@ -132,7 +205,7 @@ function App() {
           </div>
 
           <div className="col-4">
-            <TextField id="standard-basic" label="Name" />
+            <TextField id="standard-basic" onChange={(e) => setSearchName(e.target.value)} label="Name" />
           </div>
         </div>
 
@@ -154,7 +227,14 @@ function App() {
             <tbody>
               {
                 arrDt ?
-                  arrDt.map((val, i) => {
+                  arrDt.filter((val) => {
+                    if (searchName === "") {
+                      return val
+                    }
+                    else if (val.name.toLowerCase().includes(searchName.toLowerCase())) {
+                      return val
+                    }
+                  }).map((val, i) => {
                     return (
                       <tr key={i}>
                         <td>{i + 1}</td>
@@ -178,3 +258,35 @@ function App() {
 }
 
 export default App;
+
+
+/*
+
+ const filteredData = (keyValue, select, selectedChecked) => {
+        if (selectedChecked === true) {
+            const cityVal = [...categories, select]
+            const categoryVal = [...categories, select]
+            const typeVal = [...categories, select]
+            const activeVal = [...categories, select]
+            setCategories(cityVal, categoryVal, typeVal, activeVal)
+            setCategories[0] = (cityVal)
+            const filterData = table.filter((obj) => {
+                return ((cityVal).includes(obj[keyValue]))
+            })
+            setFinalData(filterData)
+        } else if (selectedChecked === false) {
+            const removeArray = categories.filter(item => item != select)
+            setCategories(removeArray)
+            const filterData = table.filter((obj) => {
+                return ((removeArray).includes(obj[keyValue]))
+            })
+            if (!removeArray.length) {
+                setFinalData(table)
+            } else {
+                setFinalData(filterData)
+            }
+
+        }
+    }
+
+*/
